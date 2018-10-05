@@ -36,6 +36,7 @@ public class CompassMain extends JavaPlugin
 		// Partie des evenements
 		this.getServer().getPluginManager().registerEvents(this.clickCompassEvent, this);
 		this.getServer().getPluginManager().registerEvents(this.secureInventoryEvent, this);
+		
 	}
 	
 	public static void sendMessage(CommandSender sender, String message)
