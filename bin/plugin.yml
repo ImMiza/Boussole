@@ -2,4 +2,5 @@ name: Boussole
 author: MizakiGaming
 main: me.mizaki.boussole.main.CompassMain
 version: 1.0
+depend: [Aypi]
 commands:

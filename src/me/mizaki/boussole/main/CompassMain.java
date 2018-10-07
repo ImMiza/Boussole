@@ -8,7 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.mizaki.boussole.events.ClickCompassEvent;
-import me.mizaki.boussole.events.SecureInventoryEvent;
 
 public class CompassMain extends JavaPlugin
 {
@@ -17,8 +16,7 @@ public class CompassMain extends JavaPlugin
 	private static CompassMain instance;
 	
 	private ClickCompassEvent clickCompassEvent;
-	private SecureInventoryEvent secureInventoryEvent;
-	
+
 	@Override
 	public void onEnable()
 	{
@@ -27,7 +25,6 @@ public class CompassMain extends JavaPlugin
 		this.permissions = new ArrayList<String>();
 		instance = this;
 		this.clickCompassEvent = new ClickCompassEvent();
-		this.secureInventoryEvent = new SecureInventoryEvent();
 		
 		
 		// Partie des commandes
@@ -35,7 +32,6 @@ public class CompassMain extends JavaPlugin
 		
 		// Partie des evenements
 		this.getServer().getPluginManager().registerEvents(this.clickCompassEvent, this);
-		this.getServer().getPluginManager().registerEvents(this.secureInventoryEvent, this);
 		
 	}
 	

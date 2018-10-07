@@ -1,34 +1,38 @@
 package me.mizaki.boussole.events;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import com.aypi.utils.Button;
+import com.aypi.utils.Menu;
+import com.aypi.utils.inter.MenuItemListener;
 
 import me.mizaki.boussole.main.CompassMain;
-import me.mizaki.boussole.ressources.Gui;
-import me.mizaki.boussole.ressources.Item;
-import me.mizaki.boussole.ressources.ItemType;
 
 public class ClickCompassEvent implements Listener
 {
 
-	private Gui mainInventory;
-	private Gui poleInventory;
+	private Menu mainInventory;
+	private Menu poleInventory;
+	private Player player;
 	
 	/*
-	 * Cette Fonction gere l'ouverture de l'inventaire par l'intermediaire d'un boussole
+	 * Cette Fonction gere l'ouverture de l'inventaire par l'intermediaire d'une boussole
 	 */
 	
 	@EventHandler
 	public void onMakeInventoryClick(PlayerInteractEvent event) 
 	{
 		final Player player = event.getPlayer();
+		this.player = player;
 		
 		if(player.getInventory().getItemInMainHand() != null || player.getInventory().getItemInOffHand() != null)
 		{
@@ -36,105 +40,192 @@ public class ClickCompassEvent implements Listener
 			{
 				if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
 				{
-					this.mainInventory = new Gui(player, InventoryType.CHEST, "Boussole de " + player.getName());
-					this.mainInventory = fillInventory(this.mainInventory);
-					this.mainInventory.openInventory();
+					CompassMain.sendMessage(player, "Ouverture Boussole#1");
+					this.mainInventory = new Menu(player, "Boussole de " + player.getName(), 9);
+					fillMainInventory();
+					this.mainInventory.openMenu();
+					CompassMain.sendMessage(player, "Ouverture Boussole#2");
 				}
 			}
 		}
 		
 	}
 	
-	private Gui fillInventory(Gui inventory)
+	private void fillMainInventory()
 	{
-		Gui inv = inventory;
-		Item lit = new Item(Material.RED_BED, "Lit"),
-				enderPearl = new Item(Material.ENDER_PEARL, "Position enregistrée"),
-					tete = new Item(Material.SKELETON_SKULL, "Suivre un joueur"),
-						spawn = new Item(Material.BLUE_BED, "Spawn par défaut"),
-							origin = new Item(Material.APPLE, "Pointez le 0 !"),
-								direction = new Item(Material.ACACIA_BOAT, "Pointez vers un pole");
+		ItemMeta meta;
 		
-		inv.setItem(lit.getItem(), 0);
-		inv.setItem(enderPearl.getItem(), 1);
-		inv.setItem(tete.getItem(), 2);
-		inv.setItem(spawn.getItem(), 3);
-		inv.setItem(origin.getItem(), 4);
-		inv.setItem(direction.getItem(), 5);
+		ItemStack item = new ItemStack(Material.RED_BED);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "Lit");
+		item.setItemMeta(meta);
 		
-		return inv;
-	}
-	
-	
-	
-	@EventHandler
-	public void itemClick(InventoryClickEvent event)
-	{
-		if(event.getCurrentItem() instanceof Item)
-		{
-			actionClick((Item) event.getCurrentItem(), (Player) event.getWhoClicked());
-		}
-	}
-	
-	private void actionClick(Item item, Player player)
-	{
-		if(item.getItemType() == ItemType.MENU)
-		{
-			switch (item.getName())
-			{
-				case "Lit":
-						if(player.getBedSpawnLocation() != null)
-						{
-							CompassMain.sendMessage(player, "Direction le lit !");
-							player.setCompassTarget(player.getBedSpawnLocation());
-						}
-						else
-							CompassMain.sendMessage(player, "Vous n'avez pas de lit !");
-					break;
-					
-				case "Position enregistrée":
-						
-					break;
-					
-				case "Suivre un joueur":
-					
-					break;
-					
-				case "Spawn par défaut":
-	
-					break;
-					
-				case "Pointez le 0 !":
-						CompassMain.sendMessage(player, "Direction l'origine du monde !");
-						player.setCompassTarget(new Location(player.getWorld(), 0.0, 0.0, 0.0));
-					break;
-					
-				case "Pointez vers un pole":
-						pole(player);
-					break;
-				default:
-					break;
-			}
-		}
-		else
-		{
+		this.mainInventory.setButton(0, new Button(item, new MenuItemListener() {
 			
-		}
-	}
-
-	private void pole(Player player)
-	{
-		Item nord = new Item(Material.GRASS, "NORD"),
-				sud = new Item(Material.GRASS, "SUD"),
-					est = new Item(Material.GRASS, "EST"),
-						ouest = new Item(Material.GRASS, "OUEST");
+			@Override
+			public void onItemClick()
+			{
+				if(player.getBedSpawnLocation() != null)
+				{
+					CompassMain.sendMessage(player, "Direction le lit !");
+					player.setCompassTarget(player.getBedSpawnLocation());
+				}
+				else
+					CompassMain.sendMessage(player, "Vous n'avez pas de lit !");
+				
+				mainInventory.closePlayerMenu();
+				
+			}
+		}));
 		
-		this.poleInventory = new Gui(player, InventoryType.HOPPER, "Choix des pôles");
-		this.poleInventory.setItem(nord, 0);
-		this.poleInventory.setItem(sud, 1);
-		this.poleInventory.setItem(est, 2);
-		this.poleInventory.setItem(ouest, 3);
 		
-		this.poleInventory.openInventory();
+		item = new ItemStack(Material.ENDER_PEARL);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "Position enregistree");
+		item.setItemMeta(meta);
+		
+		this.mainInventory.setButton(1, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+			}
+		}));
+		
+		item = new ItemStack(Material.SKELETON_SKULL);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "Suivre un joueur");
+		item.setItemMeta(meta);
+		
+		this.mainInventory.setButton(2, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+			}
+		}));
+		
+		item = new ItemStack(Material.BLUE_BED);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "Spawn par defaut");
+		item.setItemMeta(meta);
+		
+		this.mainInventory.setButton(3, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+			}
+		}));
+		
+		item = new ItemStack(Material.APPLE);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "Pointez le 0 !");
+		item.setItemMeta(meta);
+		
+		this.mainInventory.setButton(4, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				CompassMain.sendMessage(player, "Direction l'origine du monde !");
+				player.setCompassTarget(new Location(player.getWorld(), 0.0, 0.0, 0.0));
+				mainInventory.closePlayerMenu();
+			}
+		}));
+		
+		
+		item = new ItemStack(Material.ENDER_PEARL);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "Pointez vers un pole");
+		item.setItemMeta(meta);
+		
+		this.mainInventory.setButton(5, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				poleInventory = new Menu(player, "Pole", 9);
+				fillPoleInventory();
+				mainInventory.closePlayerMenu();
+				poleInventory.openMenu();
+			}
+		}));
+		
 	}
+	
+	private void fillPoleInventory() {
+		
+		ItemMeta meta;
+		
+		ItemStack item = new ItemStack(Material.GRASS_BLOCK);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "NORD");
+		item.setItemMeta(meta);
+		
+		this.poleInventory.setButton(0, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+				
+			}
+		}));
+		
+		
+		item = new ItemStack(Material.GRASS_BLOCK);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "SUD");
+		item.setItemMeta(meta);
+		
+		this.poleInventory.setButton(1, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+			}
+		}));
+		
+		item = new ItemStack(Material.GRASS_BLOCK);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "EST");
+		item.setItemMeta(meta);
+		
+		this.poleInventory.setButton(2, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+			}
+		}));
+		
+		item = new ItemStack(Material.GRASS_BLOCK);
+		meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA + "OUEST");
+		item.setItemMeta(meta);
+		
+		this.poleInventory.setButton(3, new Button(item, new MenuItemListener() {
+			
+			@Override
+			public void onItemClick()
+			{
+				// TODO Auto-generated method stub
+				poleInventory.closePlayerMenu();
+			}
+		}));
+		
+	}
+	
 }
